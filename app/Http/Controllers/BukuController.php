@@ -37,7 +37,30 @@ class BukuController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $judul = $request->judul;
+        $pengarang = $request->pengarang;
+        $tanggal_publikasi = $request->tanggal_publikasi;
+
+        $parameter = [
+            'judul'=> $judul,
+            'pengarang'=> $pengarang,
+            'tanggal_publikasi'=> $tanggal_publikasi
+        ];
+
+        $client = new Client();
+        $url = "http://127.0.0.1:8000/api/buku";
+        $response = $client->request('POST', $url, [
+            'headers'=>['Content-type' => 'application/json'],
+            'body'=>json_encode($parameter)
+        ]);
+        $content = $response->getBody()->getContents();
+        $contentArray = json_decode($content, true);
+        if($contentArray['status'] != true) {
+            $error = $contentArray['data'];
+           return redirect()->to('buku')->withErrors($error)->withInput();
+        } else {
+            return redirect()->to('buku')->with('success', 'berhasil menambahkan data');
+        }
     }
 
     /**
